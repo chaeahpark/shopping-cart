@@ -13,6 +13,8 @@ const productsDOM = document.querySelector(".products-center");
 //cart
 let cart = [];
 
+// buttons
+let buttonsDOM = [];
 // getting the products (local to content)
 class Products {
   async getProducts() {
@@ -35,21 +37,67 @@ class Products {
 
 //display products
 class UI {
+ displayProducts(products) {
+   let result = "";
+   products.forEach(product => {
+     result += `
+     <article class="product">
+       <div class="img-container">
+         <img src= ${product.image} alt="product" class="product-img">
+         <button class="bag-btn" data-id=${product.id}>
+           <i class="fas fa-shopping-cart">add to bag</i>
+         </button>
+       </div>
+       <h3>${product.title}</h3>
+       <h4>$${product.price}</h4>
+     </article>
+     `;
+   });
+   productsDOM.innerHTML = result;
+ }
+ getBagButtons() {
+   const buttons = [...document.querySelectorAll(".bag-btn")];
+   buttonsDOM = buttons;
+   buttons.forEach(button => {
+     let id = button.dataset.id;
+     let inCart = cart.find(item => item.id === id);
+     if(inCart){
+        button.innerText = "In Cart";
+        button.disabled = true;
+     }
 
+       button.addEventListener("click", (event)=>{
+         event.target.innerText = "In Cart";
+         event.target.disabled = true;
+         // get product from products
+         // add product to the cart
+         // save cart in local Storage
+         // set cart values
+         // display cart items
+         // show the cart
+       });
+     }
+   })
+
+ }
 }
 
 // local storage
 class Storage {
-
+ static saveProducts(products){
+   localStorage.setItem("products",JSON.stringify(products))
+ }
 }
 
-// event listener
+// event listenerf
 document.addEventListener("DOMContentLoaded", () => {
   const ui = new UI();
   const products = new Products();
-
-  products.getProducts().then(data => console.log(data));
-
-})
-
-//get all products
+  //get all products
+  products.getProducts().then(products => {
+    ui.displayProducts(products);
+    Storage.saveProducts(products); // Store items in the localStorage.
+  }).then(()=>{
+    ui.getBagButtons();
+  });
+});
